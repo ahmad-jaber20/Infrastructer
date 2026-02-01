@@ -1,2 +1,12 @@
 resources:
   - app-service/backend-service.yaml
+  - app-service/backend.yaml
+  - app-service/frontend-service.yaml
+  - app-service/frontend.yaml
+  - app-service/namespace.yaml
+  - app-service/postgres-init.yaml
+  - app-service/postgres-service.yaml
+  - app-service/postgres.yaml
+  - app-service/vault-fetch.yaml
+  - app-service/vault-service.yaml
+  - app-service/vault.yaml
