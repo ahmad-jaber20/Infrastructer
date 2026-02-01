@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-fetch-sa
+  namespace: ahmad-vault
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vault-fetch-clusterrole
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "delete", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-fetch-clusterrolebinding
+subjects:
+  - kind: ServiceAccount
+    name: vault-fetch-sa
+    namespace: ahmad-vault
+roleRef:
+  kind: ClusterRole
+  name: vault-fetch-clusterrole
+  apiGroup: rbac.authorization.k8s.io

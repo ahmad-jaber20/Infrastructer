@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ labels:
+   io.kompose.service: vector
+ name: vector
+spec:
+ replicas: 1
+ selector:
+   matchLabels:
+     io.kompose.service: vector
+ strategy:
+   type: Recreate
+ template:
+   metadata:
+     labels:
+       io.kompose.service: vector
+   spec:
+     serviceAccountName: vector
+     containers:
+       - name: vector
+         image: timberio/vector:latest-alpine
+         env:
+           - name: VECTOR_CONFIG
+             value: /etc/vector/vector.toml
+           - name: VECTOR_SELF_NODE_NAME
+             valueFrom:
+               fieldRef:
+                 fieldPath: spec.nodeName
+         volumeMounts:
+           - name: vector-config
+             mountPath: /etc/vector/vector.toml
+             subPath: vector.toml
+           - name: varlog
+             mountPath: /var/log
+             readOnly: true
+           - name: vector-data       # ← NEW
+             mountPath: /vector-data
+     restartPolicy: Always
+     volumes:
+       - name: vector-config
+         configMap:
+           name: vector-cm0
+       - name: varlog
+         hostPath:
+           path: /var/log
+           type: Directory
+       - name: vector-data          # ← NEW
+         emptyDir: {}

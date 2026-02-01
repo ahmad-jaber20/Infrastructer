@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-fetch-pod
+  namespace: ahmad-vault
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault-fetch-pod
+  template:
+    metadata:
+      labels:
+        app: vault-fetch-pod
+    spec:
+      serviceAccountName: vault-fetch-sa
+      containers:
+        - name: vault-fetch
+          image: bitnami/kubectl:latest
+          env:
+            - name: VAULT_ADDR
+              value: http://vault.ahmad-vault.svc.cluster.local:8200
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-token
+                  key: VAULT_TOKEN
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              echo "🚀 Starting Vault → Kubernetes sync loop"
+              while true; do
+                declare -A VAULT_PATHS=(
+                  ["kv/data/task-app"]="ahmad"
+                )
+
+                for path in "${!VAULT_PATHS[@]}"; do
+                  ns="${VAULT_PATHS[$path]}"
+                  secret_name="${ns}-secrets"
+
+                  response=$(curl -s \
+                    -H "X-Vault-Token: $VAULT_TOKEN" \
+                    "$VAULT_ADDR/v1/$path")
+
+                  if echo "$response" | jq -e '.data.data' >/dev/null; then
+                    echo "$response" | jq -r '.data.data | to_entries[] | "\(.key)=\(.value)"' > /tmp/.env
+                    kubectl create secret generic $secret_name \
+                      --from-env-file=/tmp/.env \
+                      -n $ns \
+                      --dry-run=client -o yaml | kubectl apply -f -
+                  fi
+                done
+                sleep 300
+              done

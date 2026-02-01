@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: loki
+ namespace: ahmad-monitoring
+ labels:
+   io.kompose.service: loki
+spec:
+ replicas: 1
+ selector:
+   matchLabels:
+     io.kompose.service: loki
+ strategy:
+   type: Recreate
+ template:
+   metadata:
+     labels:
+       io.kompose.service: loki
+   spec:
+     containers:
+       - name: loki
+         image: grafana/loki:3.5.3
+         args:
+           - -config.file=/etc/loki/loki-local-config.yaml
+
+
+         ports:
+           - containerPort: 3100
+             protocol: TCP
+
+
+         volumeMounts:
+           # Loki config
+           - name: loki-config
+             mountPath: /etc/loki/loki-local-config.yaml
+             subPath: loki-local-config.yaml
+             readOnly: true
+
+
+           # 🔥 REQUIRED: persistent storage MUST match path_prefix (/tmp/loki)
+           - name: loki-data
+             mountPath: /tmp/loki
+
+
+
+
+     restartPolicy: Always
+
+
+     volumes:
+       - name: loki-config
+         configMap:
+           name: loki-config
+
+
+       - name: loki-data
+         persistentVolumeClaim:
+           claimName: loki-claim0
