@@ -33,4 +33,4 @@ jobs:
 
       - name: Deploy manifests
         run: |
-          kubectl apply -k manifests/
+          kubectl apply -k manifests/base
