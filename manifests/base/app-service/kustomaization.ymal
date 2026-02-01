@@ -1,0 +1,13 @@
+resource:
+- backend-service.yaml
+- backend.yaml
+- frontend-service.yaml
+- frontend.yaml
+- namespace.yaml
+- postgres-init.yaml
+- postgres-service.yaml
+- postgres.yaml
+- vault-fetch-pod.yaml
+- vault-fetch.yaml
+- vault-service.yaml
+- vault.yaml
