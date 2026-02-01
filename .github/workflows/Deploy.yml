@@ -32,8 +32,10 @@ jobs:
       - name: Set up kubeconfig
         run: |
          mkdir -p ~/.kube
-         echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+         echo "${KUBECONFIG_B64}" | base64 -d > ~/.kube/config
          chmod 600 ~/.kube/config
+         kubectl cluster-info
+
         env:
          KUBECONFIG: ~/.kube/config
 
