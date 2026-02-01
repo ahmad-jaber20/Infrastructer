@@ -1,3 +1,0 @@
-resources:
-  - ahmad-app-ingress.yaml
-  - redirect-https.yaml
