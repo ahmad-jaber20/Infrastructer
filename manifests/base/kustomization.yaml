@@ -1,0 +1,2 @@
+resources:
+  - app-service/backend-service.yaml
